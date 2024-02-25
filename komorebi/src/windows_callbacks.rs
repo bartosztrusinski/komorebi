@@ -134,7 +134,7 @@ pub extern "system" fn enum_window(hwnd: HWND, lparam: LPARAM) -> BOOL {
     let is_maximized = WindowsApi::is_zoomed(hwnd);
 
     if is_visible && is_window && !is_minimized {
-        let window = Window { hwnd: hwnd.0 };
+        let window = Window::new(hwnd.0);
 
         if let Ok(should_manage) = window.should_manage(None, &mut RuleDebug::default()) {
             if should_manage {
@@ -166,7 +166,7 @@ pub extern "system" fn win_event_hook(
         return;
     }
 
-    let window = Window { hwnd: hwnd.0 };
+    let window = Window::new(hwnd.0);
 
     let winevent = match WinEvent::try_from(event) {
         Ok(event) => event,
@@ -191,7 +191,7 @@ pub extern "system" fn hidden_window(
     unsafe {
         match message {
             WM_DISPLAYCHANGE => {
-                let event_type = WindowManagerEvent::DisplayChange(Window { hwnd: window.0 });
+                let event_type = WindowManagerEvent::DisplayChange(Window::new(window.0));
                 winevent_listener::event_tx()
                     .send(event_type)
                     .expect("could not send message on winevent_listener::event_tx");
@@ -204,7 +204,7 @@ pub extern "system" fn hidden_window(
                 if wparam.0 as u32 == SPI_SETWORKAREA.0
                     || wparam.0 as u32 == SPI_ICONVERTICALSPACING.0
                 {
-                    let event_type = WindowManagerEvent::DisplayChange(Window { hwnd: window.0 });
+                    let event_type = WindowManagerEvent::DisplayChange(Window::new(window.0));
                     winevent_listener::event_tx()
                         .send(event_type)
                         .expect("could not send message on winevent_listener::event_tx");
@@ -215,7 +215,7 @@ pub extern "system" fn hidden_window(
             WM_DEVICECHANGE => {
                 #[allow(clippy::cast_possible_truncation)]
                 if wparam.0 as u32 == DBT_DEVNODES_CHANGED {
-                    let event_type = WindowManagerEvent::DisplayChange(Window { hwnd: window.0 });
+                    let event_type = WindowManagerEvent::DisplayChange(Window::new(window.0));
                     winevent_listener::event_tx()
                         .send(event_type)
                         .expect("could not send message on winevent_listener::event_tx");

@@ -52,6 +52,9 @@ use crate::windows_api::WindowsApi;
 use crate::GlobalState;
 use crate::Notification;
 use crate::NotificationEvent;
+use crate::ANIMATION_DURATION;
+use crate::ANIMATION_ENABLED;
+use crate::ANIMATION_STYLE;
 use crate::CUSTOM_FFM;
 use crate::DATA_DIR;
 use crate::DISPLAY_INDEX_PREFERENCES;
@@ -1222,6 +1225,15 @@ impl WindowManager {
             SocketMessage::BorderOffset(offset) => {
                 border_manager::BORDER_OFFSET.store(offset, Ordering::SeqCst);
             }
+            SocketMessage::Animation(enable) => {
+                ANIMATION_ENABLED.store(enable, Ordering::SeqCst);
+            }
+            SocketMessage::AnimationDuration(duration) => {
+                ANIMATION_DURATION.store(duration, Ordering::SeqCst);
+            }
+            SocketMessage::AnimationStyle(style) => {
+                *ANIMATION_STYLE.lock() = style;
+            }
             SocketMessage::StackbarMode(mode) => {
                 let mut stackbar_mode = STACKBAR_MODE.lock();
                 *stackbar_mode = mode;
@@ -1300,7 +1312,7 @@ impl WindowManager {
                 self.update_focused_workspace(false, false)?;
             }
             SocketMessage::DebugWindow(hwnd) => {
-                let window = Window { hwnd };
+                let window = Window::new(hwnd);
                 let mut rule_debug = RuleDebug::default();
                 let _ = window.should_manage(None, &mut rule_debug);
                 let schema = serde_json::to_string_pretty(&rule_debug)?;

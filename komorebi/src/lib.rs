@@ -1,3 +1,5 @@
+pub mod animation;
+pub mod animation_manager;
 pub mod border_manager;
 pub mod com;
 #[macro_use]
@@ -35,9 +37,12 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicI32;
 use std::sync::atomic::AtomicIsize;
 use std::sync::atomic::AtomicU32;
+use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
+pub use animation::*;
+pub use animation_manager::*;
 pub use colour::*;
 pub use hidden::*;
 pub use process_command::*;
@@ -54,6 +59,7 @@ use color_eyre::Result;
 use komorebi_core::config_generation::IdWithIdentifier;
 use komorebi_core::config_generation::MatchingRule;
 use komorebi_core::config_generation::MatchingStrategy;
+use komorebi_core::AnimationStyle;
 use komorebi_core::ApplicationIdentifier;
 use komorebi_core::HidingBehaviour;
 use komorebi_core::Rect;
@@ -197,6 +203,12 @@ lazy_static! {
         )
     };
 
+    static ref ANIMATION_STYLE: Arc<Mutex<AnimationStyle >> =
+        Arc::new(Mutex::new(AnimationStyle::Linear));
+
+    static ref ANIMATION_MANAGER: Arc<Mutex<AnimationManager>> =
+        Arc::new(Mutex::new(AnimationManager::new()));
+
     // Use app-specific titlebar removal options where possible
     // eg. Windows Terminal, IntelliJ IDEA, Firefox
     static ref NO_TITLEBAR: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![]));
@@ -215,7 +227,8 @@ pub static CUSTOM_FFM: AtomicBool = AtomicBool::new(false);
 pub static SESSION_ID: AtomicU32 = AtomicU32::new(0);
 
 pub static REMOVE_TITLEBARS: AtomicBool = AtomicBool::new(false);
-
+pub static ANIMATION_ENABLED: AtomicBool = AtomicBool::new(false);
+pub static ANIMATION_DURATION: AtomicU64 = AtomicU64::new(250);
 pub static HIDDEN_HWND: AtomicIsize = AtomicIsize::new(0);
 
 pub static STACKBAR_FOCUSED_TEXT_COLOUR: AtomicU32 = AtomicU32::new(16777215); // white

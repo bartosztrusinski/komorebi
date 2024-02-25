@@ -93,7 +93,7 @@ impl Stackbar {
                         let bottom = height;
 
                         if x >= left && x <= right && y >= top && y <= bottom {
-                            let window = Window { hwnd: *win_hwnd };
+                            let window = Window::new(*win_hwnd);
                             window.restore();
                             if let Err(err) = window.focus(false) {
                                 tracing::error!("Stackbar focus error: HWND:{} {}", *win_hwnd, err);

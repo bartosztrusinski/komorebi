@@ -263,6 +263,13 @@ impl Workspace {
         let managed_maximized_window = self.maximized_window().is_some();
 
         if *self.tile() {
+            // TODO: Figure out what to do with this
+            // if ANIMATION_ENABLED.load(Ordering::SeqCst) {
+            //     let border = Border::from(BORDER_HWND.load(Ordering::SeqCst));
+            //     border.hide()?;
+            //     BORDER_HIDDEN.store(true, Ordering::SeqCst);
+            // }
+
             if let Some(container) = self.monocle_container_mut() {
                 if let Some(window) = container.focused_window_mut() {
                     adjusted_work_area.add_padding(container_padding.unwrap_or_default());
